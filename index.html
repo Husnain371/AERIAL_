@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AERIAl | Luxury Fashion</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --gold: #d4af37;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #0a0a0a;
+    color: white;
+}
+
+/* NAV */
+nav {
+    position: fixed;
+    width: 100%;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+}
+
+.logo {
+    font-family: 'Playfair Display';
+    font-size: 26px;
+    color: var(--gold);
+}
+
+nav ul {
+    display: flex;
+    gap: 25px;
+    list-style: none;
+}
+
+nav ul li {
+    cursor: pointer;
+}
+
+nav ul li:hover {
+    color: var(--gold);
+}
+
+/* HERO */
+.hero {
+    height: 100vh;
+    background: url('https://images.unsplash.com/photo-1520975922284-9f7c4e2b1e4c') center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 65px;
+    font-family: 'Playfair Display';
+}
+
+.btn {
+    margin-top: 20px;
+    padding: 12px 25px;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    background: transparent;
+    cursor: pointer;
+}
+
+/* SHOP */
+.section {
+    padding: 80px 40px;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+    gap: 20px;
+}
+
+.product {
+    background: #111;
+    padding: 15px;
+    transition: 0.4s;
+}
+
+.product:hover {
+    transform: translateY(-10px);
+}
+
+.product img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.product h4 {
+    margin: 10px 0;
+}
+
+.product button {
+    padding: 8px 15px;
+    background: var(--gold);
+    border: none;
+    cursor: pointer;
+}
+
+/* CART */
+.cart {
+    position: fixed;
+    right: -100%;
+    top: 0;
+    width: 350px;
+    height: 100%;
+    background: #111;
+    padding: 20px;
+    transition: 0.4s;
+    overflow-y: auto;
+}
+
+.cart.active {
+    right: 0;
+}
+
+.cart h2 {
+    margin-bottom: 20px;
+}
+
+/* AUTH */
+.auth {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: #111;
+    padding: 30px;
+}
+
+.auth input {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    width: 250px;
+}
+
+/* FOOTER */
+footer {
+    padding: 40px;
+    text-align: center;
+    background: black;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <div class="logo">AERIAl</div>
+    <ul>
+        <li onclick="scrollToSection('home')">Home</li>
+        <li onclick="scrollToSection('shop')">Shop</li>
+        <li onclick="openCart()">Cart 🛒</li>
+        <li onclick="openAuth()">Login</li>
+    </ul>
+</nav>
+
+<section id="home" class="hero">
+    <div>
+        <h1>AERIAl</h1>
+        <button class="btn" onclick="scrollToSection('shop')">Shop Now</button>
+    </div>
+</section>
+
+<section id="shop" class="section">
+    <h2>Shop Collection</h2>
+    <div class="products" id="productList"></div>
+</section>
+
+<div class="cart" id="cart">
+    <h2>Your Cart</h2>
+    <div id="cartItems"></div>
+</div>
+
+<div class="auth" id="authBox">
+    <h3>Login</h3>
+    <input type="text" placeholder="Email">
+    <input type="password" placeholder="Password">
+    <button class="btn">Login</button>
+</div>
+
+<footer>
+    <p>© 2026 AERIAl Luxury Fashion</p>
+</footer>
+
+<script>
+const products = [
+    {id:1,name:"Luxury Jacket",price:120,img:"https://images.unsplash.com/photo-1542060748-10c28b62716c"},
+    {id:2,name:"Designer Dress",price:150,img:"https://images.unsplash.com/photo-1524504388940-b1c1722653e1"},
+    {id:3,name:"Premium Watch",price:200,img:"https://images.unsplash.com/photo-1519741497674-611481863552"},
+    {id:4,name:"Sneakers",price:90,img:"https://images.unsplash.com/photo-1528701800489-20be3c6c2c7c"}
+];
+
+let cart = [];
+
+function loadProducts(){
+    let container = document.getElementById("productList");
+    products.forEach(p=>{
+        container.innerHTML += `
+        <div class="product">
+            <img src="${p.img}">
+            <h4>${p.name}</h4>
+            <p>$${p.price}</p>
+            <button onclick="addToCart(${p.id})">Add to Cart</button>
+        </div>`;
+    });
+}
+
+function addToCart(id){
+    let item = products.find(p=>p.id===id);
+    cart.push(item);
+    renderCart();
+}
+
+function renderCart(){
+    let cartBox = document.getElementById("cartItems");
+    cartBox.innerHTML = "";
+    cart.forEach(i=>{
+        cartBox.innerHTML += `<p>${i.name} - $${i.price}</p>`;
+    });
+}
+
+function openCart(){
+    document.getElementById("cart").classList.toggle("active");
+}
+
+function openAuth(){
+    document.getElementById("authBox").style.display="block";
+}
+
+function scrollToSection(id){
+    document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>
